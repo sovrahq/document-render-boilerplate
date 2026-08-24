@@ -1,0 +1,75 @@
+/*
+ * El cromo de la pagina, que es un solo bloque: el estado.
+ *
+ * Cuando hay documento no se dibuja nada de aca — se ve la hoja y nada mas.
+ * Este archivo es para cuando NO hay documento.
+ *
+ * IMPORTANTE: nada de esto es la hoja. El CSS de la hoja vive en
+ * `js/sheet/css.js` como una funcion, porque depende del tamano de pagina que
+ * trae el layout, y `toDom` lo inyecta en un <style> aparte. Si tocas algo de
+ * este archivo, la hoja no se mueve; si tocas css.js, el test golden falla.
+ *
+ * Los dos archivos comparten los mismos valores (el gris #f3f4f6, la sombra, el
+ * ancho de 794px) a proposito: asi la hoja se ve apoyada sobre la pagina y no
+ * pegada encima.
+ */
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: #f3f4f6;
+  color: #111827;
+  /* Las mismas familias que la hoja. No son las webfonts del dashboard: esta
+     pagina no puede cargarlas, y otras metricas mueven todos los textos. */
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+/* 794px es el ancho de la hoja A4 a 96dpi, asi que lo que va arriba queda
+   alineado con el borde izquierdo del papel. `header` lo usa el formulario de
+   index.html; la pagina del documento no tiene encabezado. */
+header {
+  max-width: 794px;
+  margin: 24px auto 0;
+  padding: 0 4px;
+}
+
+h1 { margin: 0; font-size: 18px; }
+
+
+/* El bloque de estado ocupa el lugar de la hoja: mismo ancho, misma sombra, asi
+   que un documento privado no se ve como una pagina rota. */
+#status {
+  max-width: 794px;
+  margin: 24px auto;
+  padding: 24px;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, .2);
+}
+
+#status h2 { margin: 0 0 8px; font-size: 16px; }
+
+#status p { margin: 0; font-size: 14px; color: #374151; line-height: 1.5; }
+
+code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, "Courier New", monospace;
+  font-size: .92em;
+  word-break: break-all;
+}
+
+/*
+ * Impresion.
+ *
+ * `@page` esta tambien en el CSS de la hoja, y esta bien que este en los dos: el
+ * .html suelto que genera `to-html.js` no carga este archivo, asi que tiene que
+ * traer el suyo. La hoja ya esta maquetada en A4, asi que el dialogo de imprimir
+ * del browser escribe un PDF correcto sin ayuda.
+ */
+@page { size: A4; margin: 0; }
+
+@media print {
+  body { background: #fff; }
+  /* Lo que sale por la impresora es la hoja sola. */
+  [data-chrome] { display: none !important; }
+}

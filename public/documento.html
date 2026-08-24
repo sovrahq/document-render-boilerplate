@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Documento — Sovra</title>
+
+<!--
+  El CSS de la hoja NO esta aca. Lo inyecta `toDom` en un <style> propio, porque
+  depende del tamano de pagina que trae el layout: `.sheet` lleva su width/height
+  y `.footer` su ancho menos los dos margenes. Ver js/sheet/css.js.
+
+  Lo unico que carga esta pagina es el cromo, y el cromo es dos avisos. Nada mas:
+  el titulo del documento ya esta dibujado dentro de la hoja, asi que repetirlo
+  afuera solo agrega ruido alrededor del papel.
+-->
+<link rel="stylesheet" href="/css/app.css">
+</head>
+<body>
+
+<!--
+  PASO 0 — el esqueleto.
+  Dos huecos, y el JS no crea ninguno: los busca por id y los llena.
+
+    #status   el motivo por el que NO se puede mostrar el documento. Ocupa el
+              lugar de la hoja, porque cuando aparece no hay hoja. Es lo unico
+              que esta pagina dibuja fuera del papel.
+    #stage    donde se dibuja la hoja (el <style> y el .sheet van adentro)
+
+  Cuando hay hoja, no hay nada mas: ni titulo, ni id, ni avisos. Lo que se
+  degrado (un QR que no entro, un digest que no se pudo calcular) se anota en la
+  consola y no en la pagina.
+
+  `#status` lleva `data-chrome`, y `@media print` lo esconde. La hoja ya esta
+  maquetada en A4, asi que el dialogo de imprimir del browser escribe un PDF
+  correcto sin ayuda y sin que haga falta un boton.
+-->
+<div id="status" data-chrome hidden></div>
+
+<main id="stage" hidden></main>
+
+<!--
+  `type="module"` no es opcional: todo el front son modulos ES y se importan
+  entre si. Sin esto los `import` de documento.js son un error de sintaxis.
+-->
+<script type="module" src="/js/documento.js"></script>
+</body>
+</html>

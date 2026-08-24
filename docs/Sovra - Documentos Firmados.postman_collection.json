@@ -1,0 +1,256 @@
+{
+  "info": {
+    "_postman_id": "1c13f010-086f-40bb-9a72-c325d0f72bab",
+    "name": "Sovra - Documentos Firmados",
+    "description": "Colección para la API de documentos firmados: emisión, visibilidad, listado y lectura pública.\n\n**Variables requeridas:**\n\n- `base_url`: URL base de la API (sin slash final)\n    \n- `api_key`: API key del workspace (solo endpoints /issuer)\n    \n- `schema_id`: id del schema de tipo document\n    \n- `document_id`: id del documento (se autocompleta tras emitir)\n    \n\nNotas:\n\n- El esquema `Bearer` se compara de forma literal; `bearer` en minúsculas devuelve 401.\n    \n- Los endpoints `/api/v1/documents/...` no llevan API key.\n    \n- La emisión valida, firma y ancla en una sola llamada: puede tardar hasta \\~90 segundos.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "44641457",
+    "_collection_link": "https://go.postman.co/collection/44641457-1c13f010-086f-40bb-9a72-c325d0f72bab?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "Issuer (requiere API key)",
+      "item": [
+        {
+          "name": "Emitir documento",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 201) {\n    const body = pm.response.json();\n    pm.collectionVariables.set('document_id', body.id);\n    console.log('document_id guardado:', body.id);\n    console.log('status:', body.status);\n}\n\npm.test('201 Created', () => pm.response.to.have.status(201));\npm.test('credential presente', () => {\n    pm.expect(pm.response.json().credential).to.be.a('string');\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{api_key}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"schema_id\": \"{{schema_id}}\",\n  \"claims\": {\n    \"claim_key\": \"valor\"\n  },\n  \"visibility\": \"private\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/issuer/documents",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "issuer",
+                "documents"
+              ]
+            },
+            "description": "Emite un documento con un schema previamente diseñado. Una sola llamada valida, firma y ancla: esperar hasta ~90 segundos.\n\n→ 201 si se creó exitosamente. **Conservar el `credential`**: ese string es el documento, autocontenido y verificable.\n\nErrores: 409 workspace_not_provisioned, 422 wrong_schema_kind / missing_claims / invalid_visibility, 503 chain_not_configured."
+          },
+          "response": []
+        },
+        {
+          "name": "Cambiar visibilidad → public",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));",
+                  "pm.test('visibility = public', () => {",
+                  "    pm.expect(pm.response.json().visibility).to.eql('public');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{api_key}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/issuer/documents/{{document_id}}/visibility/public",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "issuer",
+                "documents",
+                "{{document_id}}",
+                "visibility",
+                "public"
+              ]
+            },
+            "description": "Publica el documento. El valor viaja como último segmento del path, no en un body.\n\nEsto restringe los endpoints de la API, no el artefacto: una credencial ya entregada sigue siendo verificable por quien la tenga. La visibilidad no está cubierta por la firma."
+          },
+          "response": []
+        },
+        {
+          "name": "Cambiar visibilidad → private",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));",
+                  "pm.test('visibility = private', () => {",
+                  "    pm.expect(pm.response.json().visibility).to.eql('private');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{api_key}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/issuer/documents/{{document_id}}/visibility/private",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "issuer",
+                "documents",
+                "{{document_id}}",
+                "visibility",
+                "private"
+              ]
+            },
+            "description": "Vuelve el documento a privado. Cierra el enlace, no las copias ya entregadas."
+          },
+          "response": []
+        },
+        {
+          "name": "Listar documentos del workspace",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));",
+                  "pm.test('array documents presente', () => {",
+                  "    pm.expect(pm.response.json().documents).to.be.an('array');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{api_key}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/issuer/documents",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "issuer",
+                "documents"
+              ]
+            },
+            "description": "Lista todos los documentos del workspace, del más reciente al más antiguo. Sin paginación. Cada entrada tiene la misma forma que la respuesta de emisión, `credential` y `claims` decodificados incluidos."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Público (sin API key)",
+      "item": [
+        {
+          "name": "Obtener documento (JSON)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 OK (público) o 401 (privado)', () => {",
+                  "    pm.expect([200, 401]).to.include(pm.response.code);",
+                  "});",
+                  "",
+                  "if (pm.response.code === 200) {",
+                  "    pm.test('credential presente', () => {",
+                  "        pm.expect(pm.response.json().credential).to.be.a('string');",
+                  "    });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/documents/{{document_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "documents",
+                "{{document_id}}"
+              ]
+            },
+            "description": "El documento, para quien recibió el enlace. Sin `/issuer` en el path y sin API key: si el documento es público, tener el id es toda la autorización. Uno privado necesita sesión del dashboard (una API key no sirve → 401 authentication_required).\n\nSolo `credential` es verificable; el resto es para renderizar. Responde con `Access-Control-Allow-Origin: *`."
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "https://api.example.com"
+    },
+    {
+      "key": "api_key",
+      "value": ""
+    },
+    {
+      "key": "schema_id",
+      "value": ""
+    },
+    {
+      "key": "document_id",
+      "value": ""
+    }
+  ]
+}

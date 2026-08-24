@@ -1,0 +1,11 @@
+{
+  "name": "sovra-documentos-firmados",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Panel emisor, verificador y guia de documentos firmados de Sovra",
+  "scripts": {
+    "start": "node server.js",
+    "test": "node --test \"test/**/*.test.mjs\""
+  },
+  "engines": { "node": ">=18" }
+}

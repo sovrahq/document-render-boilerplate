@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Documentos firmados — Sovra</title>
+<link rel="stylesheet" href="/css/app.css">
+<style>
+  main { max-width: 794px; margin: 24px auto; padding: 24px; background: #fff;
+         border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,.2); }
+  p { font-size: 14px; color: #374151; line-height: 1.5; }
+  form { display: flex; gap: 8px; margin: 20px 0 0; flex-wrap: wrap; }
+  input { flex: 1; min-width: 280px; font: inherit; font-size: 13px; padding: 7px 10px;
+          border: 1px solid #d1d5db; border-radius: 6px;
+          font-family: ui-monospace, SFMono-Regular, Menlo, "Courier New", monospace; }
+  /* El unico boton del front, y es de este formulario. La hoja no tiene
+     acciones: se imprime con el dialogo del browser, que ya sabe hacerlo
+     porque la hoja esta maquetada en A4. */
+  button { font: inherit; font-size: 13px; padding: 7px 12px; cursor: pointer;
+           border: 1px solid #d1d5db; border-radius: 6px; background: #fff; color: #111827; }
+  button:hover { border-color: #9ca3af; }
+</style>
+</head>
+<body>
+<header>
+  <div><h1>Documentos firmados — Sovra</h1></div>
+</header>
+<main>
+  <p>
+    Un documento firmado se abre por su id. La hoja se arma en el browser desde
+    el <code>layout</code> que devuelve la API, y los valores salen del
+    <code>credential</code>, que es lo unico firmado de toda la respuesta.
+  </p>
+  <form method="get" action="/documento">
+    <input name="id" placeholder="63813a91-6986-46bf-9f23-128a6598cd82"
+           pattern="[0-9a-fA-F-]{36}" required
+           value="63813a91-6986-46bf-9f23-128a6598cd82">
+    <button type="submit">Abrir</button>
+  </form>
+</main>
+</body>
+</html>
